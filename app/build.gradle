@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-noarg'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.apollographql.android'
 
 apply from: "./local.gradle"
 
@@ -110,6 +111,13 @@ dependencies {
     implementation "com.bennyhuo.swipefinishable:swipefinishable:1.0-rc2"
 
     implementation "androidx.multidex:multidex:2.0.1"
+
+    // https://github.com/apollographql/apollo-android
+    implementation("com.apollographql.apollo:apollo-runtime:$apollo_version")
+    implementation("com.apollographql.apollo:apollo-rx-support:$apollo_version")
+
+    // https://github.com/enbandari/RetroApollo-Android
+    implementation "com.bennyhuo.retroapollo:retroapollo:0.4.2-beta"
 
     implementation project(":common")
     implementation project(":mvp")

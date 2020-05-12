@@ -6,8 +6,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import com.apollographql.apollo.ApolloCall.Callback
+import com.apollographql.apollo.exception.ApolloException
+import com.apollographql.apollo.rx.RxApollo
 import com.jthou.github.R
+import com.jthou.github.network.GraphQLService
+import com.jthou.github.network.apolloClient
 import com.jthou.github.network.entites.Repository
+import com.jthou.github.network.graphql.entities.RepositoryIssueCountQuery
 import com.jthou.github.network.services.ActivityService
 import com.jthou.github.network.services.RepositoryService
 import com.jthou.github.settings.Key
@@ -17,7 +23,10 @@ import kotlinx.android.synthetic.main.activity_repo_details.*
 import kotlinx.android.synthetic.main.app_bar_details.*
 import retrofit2.HttpException
 import retrofit2.Response
+import rx.Scheduler
 import rx.Subscriber
+import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
 
 class RepoDetailActivity : BaseDetailSwipeFinishableActivity() {
 
@@ -68,7 +77,7 @@ class RepoDetailActivity : BaseDetailSwipeFinishableActivity() {
         val owner = repository.owner.login
         val name = repository.name
 
-        stars.checkEvent = {isChecked ->
+        stars.checkEvent = { isChecked ->
             if (isChecked) {
                 ActivityService
                     .unstar(owner, name)
@@ -80,7 +89,7 @@ class RepoDetailActivity : BaseDetailSwipeFinishableActivity() {
         }
 
         watches.checkEvent = { isChecked ->
-            if(isChecked){
+            if (isChecked) {
                 ActivityService.unwatch(owner, name)
                     .map { false }
             } else {
@@ -93,7 +102,7 @@ class RepoDetailActivity : BaseDetailSwipeFinishableActivity() {
             .onErrorReturn {
                 if (it is HttpException) {
                     it.response() as Response<Any>
-                } else{
+                } else {
                     throw it
                 }
             }
@@ -105,16 +114,6 @@ class RepoDetailActivity : BaseDetailSwipeFinishableActivity() {
             .subscribeIgnoreError {
                 watches.isChecked = it.subscribed
             }
-
-
-
-
-
-
-
-
-
-
 
 
     }
@@ -135,7 +134,7 @@ class RepoDetailActivity : BaseDetailSwipeFinishableActivity() {
                     stars.content = repository.stargazers_count.toString()
                     watches.content = repository.subscribers_count.toString()
                     forks.content = repository.forks_count.toString()
-                    issues.content = repository.open_issues_count.toString()
+//                    issues.content = repository.open_issues_count.toString()
 
                     loadingView.animate().alpha(0f).start()
                     detailContainer.animate().alpha(1f).start()
@@ -149,24 +148,47 @@ class RepoDetailActivity : BaseDetailSwipeFinishableActivity() {
                 }
             })
 
+//        // 使用 graphql 的方式请求接口
+//        apolloClient
+//            .query(RepositoryIssueCountQuery(repository.owner.login, repository.name))
+//            .enqueue(object : Callback<RepositoryIssueCountQuery.Data>() {
+//                override fun onFailure(e: ApolloException) {
+//                    e.printStackTrace()
+//                }
+//
+//                override fun onResponse(response: com.apollographql.apollo.api.Response<RepositoryIssueCountQuery.Data>) {
+//                    runOnUiThread {
+//                        response.data()?.let {
+//                            issues.content = "open: ${it.repository()?.openIssues()
+//                                ?.totalCount() ?: 0} closed: ${it.repository()?.closedIssues()
+//                                ?.totalCount() ?: 0}"
+//                        }
+//                    }
+//                }
+//
+//            })
 
+//        // rxjava + graphql 的方式请求接口
+//        RxApollo
+//            .from(apolloClient.query(RepositoryIssueCountQuery(repository.owner.login, repository.name)))
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe {
+//                it.data()?.let {
+//                    issues.content = "open: ${it.repository()?.openIssues()
+//                        ?.totalCount() ?: 0} closed: ${it.repository()?.closedIssues()
+//                        ?.totalCount() ?: 0}"
+//                }
+//            }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        // rxjava + graphql + retrofit 的方式请求接口
+        GraphQLService
+            .queryIssuesCount(repository.owner.login, repository.name)
+            .subscribeIgnoreError {
+                issues.content = "open: ${it.repository()?.openIssues()
+                    ?.totalCount() ?: 0} closed: ${it.repository()?.closedIssues()
+                    ?.totalCount() ?: 0}"
+            }
 
     }
 

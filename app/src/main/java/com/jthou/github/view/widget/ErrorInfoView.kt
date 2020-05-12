@@ -2,7 +2,9 @@ package com.jthou.github.view.widget
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.content.res.TypedArray
 import android.graphics.Color
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.RelativeLayout
@@ -27,7 +29,9 @@ class ErrorInfoView(val parentView: ViewGroup) : RelativeLayout(parentView.conte
     var isShowing = false
 
     init {
-        backgroundColor = ContextCompat.getColor(context, R.color.colorBackground)
+        val typedValue = TypedValue()
+        context.theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+        backgroundColor = typedValue.data
         textView = TextView(context)
         textView.apply {
             textSize = 18f
