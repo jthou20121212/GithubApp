@@ -1,2 +1,3 @@
 include ':app', ':common', ':mvp', ':layout'
 rootProject.name='Github'
+include ':retroapollo-android'

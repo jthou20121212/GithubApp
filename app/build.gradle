@@ -117,9 +117,10 @@ dependencies {
     implementation("com.apollographql.apollo:apollo-rx-support:$apollo_version")
 
     // https://github.com/enbandari/RetroApollo-Android
-    implementation "com.bennyhuo.retroapollo:retroapollo:0.4.2-beta"
+    // implementation "com.bennyhuo.retroapollo:retroapollo:0.4.2-beta"
 
     implementation project(":common")
     implementation project(":mvp")
     implementation project(":layout")
+    implementation project(":retroapollo-android")
 }

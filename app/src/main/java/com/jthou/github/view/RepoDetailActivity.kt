@@ -181,14 +181,32 @@ class RepoDetailActivity : BaseDetailSwipeFinishableActivity() {
 //                }
 //            }
 
-        // rxjava + graphql + retrofit 的方式请求接口
-        GraphQLService
-            .queryIssuesCount(repository.owner.login, repository.name)
-            .subscribeIgnoreError {
-                issues.content = "open: ${it.repository()?.openIssues()
-                    ?.totalCount() ?: 0} closed: ${it.repository()?.closedIssues()
-                    ?.totalCount() ?: 0}"
-            }
+//        // rxjava + graphql + retrofit 的方式请求接口
+//        GraphQLService
+//            .queryIssuesCount(repository.owner.login, repository.name)
+//            .subscribeIgnoreError {
+//                issues.content = "open: ${it.repository()?.openIssues()
+//                    ?.totalCount() ?: 0} closed: ${it.repository()?.closedIssues()
+//                    ?.totalCount() ?: 0}"
+//            }
+
+        GraphQLService.queryIssuesCount2(repository.owner.login, repository.name)
+            .enqueue(object : Callback<RepositoryIssueCountQuery.Data>() {
+                override fun onFailure(e: ApolloException) {
+                    e.printStackTrace()
+                }
+
+                override fun onResponse(response: com.apollographql.apollo.api.Response<RepositoryIssueCountQuery.Data>) {
+                    runOnUiThread {
+                        response.data()?.let {
+                            issues.content = "open: ${it.repository()?.openIssues()
+                                ?.totalCount() ?: 0} closed: ${it.repository()?.closedIssues()
+                                ?.totalCount() ?: 0}"
+                        }
+                    }
+                }
+
+            })
 
     }
 
