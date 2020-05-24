@@ -5,7 +5,6 @@ import com.jthou.github.network.entites.SubscriptionBody
 import com.jthou.github.network.entites.SubscriptionResponse
 import com.jthou.github.network.entites.WATCH
 import com.jthou.github.network.retrofit
-//import kotlinx.coroutines.experimental.Deferred
 import retrofit2.Response
 import retrofit2.adapter.rxjava.GitHubPaging
 import retrofit2.http.*
@@ -16,6 +15,10 @@ interface ActivityApi {
     //region star
     @GET("/user/starred/{owner}/{repo}")
     fun isStarred(@Path("owner") owner: String, @Path("repo") repo: String): Observable<Response<Any>>
+
+    //region star
+    @GET("/user/starred/{owner}/{repo}")
+    suspend fun isStarredSimple(@Path("owner") owner: String, @Path("repo") repo: String): Response<Any>
 
     @PUT("/user/starred/{owner}/{repo}")
     fun star(@Path("owner") owner: String, @Path("repo") repo: String): Observable<Any>
@@ -34,8 +37,8 @@ interface ActivityApi {
     @GET("/repos/{owner}/{repo}/subscription")
     fun isWatched(@Path("owner") owner: String, @Path("repo") repo: String): Observable<SubscriptionResponse>
 
-//    @GET("/repos/{owner}/{repo}/subscription")
-//    fun isWatchedDeferred(@Path("owner") owner: String, @Path("repo") repo: String): Deferred<SubscriptionResponse>
+    @GET("/repos/{owner}/{repo}/subscription")
+    suspend fun isWatchedSimple(@Path("owner") owner: String, @Path("repo") repo: String): SubscriptionResponse
 
     @PUT("/repos/{owner}/{repo}/subscription")
     @Headers("Content-Type:application/json")

@@ -12,17 +12,16 @@ import com.jthou.github.R
 import com.jthou.github.model.account.AccountManager
 import com.jthou.github.network.entites.User
 import com.jthou.github.settings.Themer
-import com.jthou.github.utils.afterClose
-import com.jthou.github.utils.doOnLayoutAvailable
-import com.jthou.github.utils.loadWithGlide
-import com.jthou.github.utils.showFragment
+import com.jthou.github.utils.*
 import com.jthou.github.view.config.NavViewItem
 import com.jthou.github.view.widget.ActionBarController
 import com.jthou.github.view.widget.NavigationController
+import com.jthou.github.view.widget.confirm
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.menu_item_daynight.view.*
 import kotlinx.android.synthetic.main.nav_header_main.*
+import kotlinx.coroutines.GlobalScope
 import splitties.activities.start
 import splitties.toast.toast
 
@@ -87,17 +86,21 @@ class MainActivity : AppCompatActivity(), AccountManager.OnAccountStateChangeLis
             .no {
                 start<LoginActivity>()
             }.otherwise {
-                AccountManager
-                    .logout()
-                    .subscribe(
-                        {
-                            toast(R.string.logout_success)
-                        },
-                        {
-                            toast(R.string.logout_failure)
-                            it.printStackTrace()
-                        }
-                    )
+                GlobalScope.launchMain {
+                    confirm(getString(R.string.logout_title), getString(R.string.logout_message)).yes {
+                        AccountManager
+                            .logout()
+                            .subscribe(
+                                {
+                                    toast(R.string.logout_success)
+                                },
+                                {
+                                    toast(R.string.logout_failure)
+                                    it.printStackTrace()
+                                }
+                            )
+                    }
+                }
             }
     }
 

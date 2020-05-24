@@ -25,4 +25,7 @@
 
     <string name="logout_success">logout success</string>
     <string name="logout_failure">logout failure</string>
+
+    <string name="logout_title">提示</string>
+    <string name="logout_message">确认注销吗 ?</string>
 </resources>
